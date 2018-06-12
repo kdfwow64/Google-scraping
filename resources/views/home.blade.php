@@ -14,7 +14,8 @@
                         </div>
                     @endif
 
-                    You are logged in!
+                    <input type="input" name="keyword">
+                    <button>Search</button>
                 </div>
             </div>
         </div>
