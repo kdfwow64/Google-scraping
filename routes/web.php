@@ -17,8 +17,11 @@ Route::get('/', function () {
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/scrape', 'MainscrapingController@searchwithKeyword');
 Route::get('/info', 'MainscrapingController@getdetailInfo');
-Route::get('/test', 'MainscrapingController@test');
-Route::get('/home/get', 'HomeController@get')->name('get');
+Route::get('mail/send', 'MailController@send');
+
+Route::post('/home/scrape', 'MainscrapingController@searchwithKeyword');
+Route::post('/home/getDomains', 'HomeController@getDomains');
+Route::post('/home/getEmail', 'HomeController@getEmail');
 
 Auth::routes();
 

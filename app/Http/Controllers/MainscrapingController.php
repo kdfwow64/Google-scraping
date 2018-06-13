@@ -7,32 +7,31 @@ use Illuminate\Http\Request;
 
 class MainscrapingController extends Controller
 {
-	public function getdetailInfo($url) {
-	//	$url= "http://forbes.com/sites/jaysondemers/2016/11/07/6-tools-for-keyword-research-you-need-in-seo/";
+	public function getDomainfromUrl($url) {
 		if(substr($url, 0, 4) == "http") {
 			$sub_url = substr($url,strpos($url,"/")+2);
 			if(substr($sub_url, 0, 3) == "www")
 				$sub_url = substr($sub_url,4);
 			if(strpos($sub_url,'/') !== false)
 				$sub_url = substr($sub_url, 0, strpos($sub_url, '/'));
-			$url = "http://api.whoxy.com/?key=ef2366e1534b0892wz0a9d52229b6f53e&whois=".$sub_url;
+			return $sub_url;
+		} else {
+			return null;
+		}
+	}
+	public function getdetailInfo($domain) {
+		if($domain != null) {
+			$url = "http://api.whoxy.com/?key=ef2366e1534b0892wz0a9d52229b6f53e&whois=".$domain;
 			$serdata = json_decode(file_get_contents($url),true);
 			return $serdata;
 		} else {
 			return null;
 		}
 	}
-	public function getIssues($url) {
-
-		if(substr($url, 0, 4) == "http") {
-			$sub_url = substr($url,strpos($url,"/")+2);
-			if(substr($sub_url, 0, 3) == "www")
-				$sub_url = substr($sub_url,4);
-			if(strpos($sub_url,'/') !== false)
-				$sub_url = substr($sub_url, 0, strpos($sub_url, '/'));
-			$vkey = $sub_url;
+	public function getIssues($domain) {
+		if($domain != null) {
 			$scrape_result = "";
-			$url = "https://validator.w3.org/nu/?doc=https%3A%2F%2F$vkey%2F";
+			$url = "https://validator.w3.org/nu/?doc=https%3A%2F%2F$domain%2F";
 	        $ch = curl_init();
 	        curl_setopt($ch, CURLOPT_HEADER, 0);
 	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -68,13 +67,11 @@ class MainscrapingController extends Controller
 	        $res['error_total'] = $dom_xpath->query('//div[@id="results"]/ol/li[@class="error"]')->length;
 	        $res['warning_total'] = $dom_xpath->query('//div[@id="results"]/ol/li[@class="info warning"]')->length;
 	        return $res;
-
-
 		} else {
 			return null;
 		}
 	}
-    public function searchwithKeyword() {
+    public function searchwithKeyword(Request $request) {
     	global $pwd;
         global $uid;
         global $PROXY;
@@ -105,10 +102,10 @@ class MainscrapingController extends Controller
 
 	    // General configuration
 	    $test_website_url = "website.com"; // The URL, or a sub-string of it, of the indexed website.
-	    $test_keywords = "keyword"; // comma separated keywords to test the rank for
+	    $test_keywords = $request->input("keyword"); // comma separated keywords to test the rank for
 	    $test_max_pages = 3; // The number of result pages to test until giving up per keyword.
-	    $start_page = 1;
-	    $end_page = 2;
+	    $start_page = $request->input("start_page");
+	    $end_page = $request->input("end_page");
 	    $test_100_resultpage = 0; // Warning: Google ranking results may  become inaccurate
 
 	    /* Local result configuration. Enter 'help' to receive a list of possible choices. use global and en for the default worldwide results in english 
@@ -163,7 +160,7 @@ class MainscrapingController extends Controller
 	if (!$ready) die("The specified API key account for user $uid is not active or invalid. $NL");
 	if ($PLAN['protocol'] != "http") die("Wrong proxy protocol configured, switch to HTTP. $NL");
 
-	echo "$NL$B Search Engine Scraper for $test_website_url initated $B_ $NL$NL";
+//	echo "$NL$B Search Engine Scraper for $test_website_url initated $B_ $NL$NL";
 
 	/*
 	 * This loop iterates through all keyword combinations
@@ -188,7 +185,7 @@ class MainscrapingController extends Controller
 	    /*
 	    * This loop iterates through all result pages for the given keyword
 	    */
-	    for ($page = $start_page; $page < $end_page; $page++)
+	    for ($page = $start_page; $page <= $end_page; $page++)
 	    {
 	        $serp_data = load_cache($search_string, $page, $country_data, $force_cache); // load results from local cache if available for today
 	        $maxpages = 0;
@@ -308,8 +305,8 @@ class MainscrapingController extends Controller
 	{
 	    foreach ($rank_data as $keyword => $ranks)
 	    {
-	        echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" $B_$NL";																																																																																																						
-	        echo "$B" . "Rank [Type] - Website -  Title$B_$NL";
+	    //    echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" $B_$NL";
+	    //    echo "$B" . "Rank [Type] - Website -  Title$B_$NL";
 	        $pos = 0;
 	        foreach ($ranks as $rank)
 	        {
@@ -328,23 +325,26 @@ class MainscrapingController extends Controller
 	            $pos_str = ($start_page + $pos_1 + 1) * 10 + $pos_temp;
 
 	            $new_info = new Info();
+	            $domain = $this->getDomainfromUrl($rank['url']);
 	            $new_info->business_name = $rank['title'];
-	            $new_info->domain_name = $rank['url'];
+	            $new_info->domain_name = $domain;
 	            $new_info->rank = $pos_str;
 	            $new_info->flag = 0;
-	            $detail_info = $this->getdetailInfo($rank['url']);
-	            if($detail_info != null) {
-	            	$new_info->admins_name = $detail_info['administrative_contact']['full_name'];
-	            	$new_info->email = $detail_info['administrative_contact']['email_address'];
-	            	$new_info->phone = $detail_info['administrative_contact']['phone_number'];
-	            	$new_info->mailing_address = $detail_info['administrative_contact']['mailing_address'];
-	            	$new_info->flag = 1;
-	            }
+	            if($domain != null ) {
+	            	$detail_info = $this->getdetailInfo($domain);
+		            if($detail_info != null) {
+		            	$new_info->admins_name = $detail_info['administrative_contact']['full_name'];
+		            	$new_info->email = $detail_info['administrative_contact']['email_address'];
+		            	$new_info->phone = $detail_info['administrative_contact']['phone_number'];
+		            	$new_info->mailing_address = $detail_info['administrative_contact']['mailing_address'];
+		            	$new_info->flag = 1;
+		            }
 
-	            $url = $rank['url'];
-	            $issues = $this->getIssues($rank['url']);
-	            $new_info->error_total = $issues['error_total'];
-	            $new_info->warning_total = $issues['warning_total'];
+		            $issues = $this->getIssues($domain);
+		            $new_info->error_total = $issues['error_total'];
+		            $new_info->warning_total = $issues['warning_total'];
+	            }
+	            
 	            $new_info->save();
 	        }
 	    }
@@ -355,13 +355,13 @@ class MainscrapingController extends Controller
 	{
 	    if (!isset($siterank_data[$keyword]))
 	    {
-	        echo "$NL$B" . "The specified site was not found in the search results for keyword \"$keyword\". $B_$NL";
+	//        echo "$NL$B" . "The specified site was not found in the search results for keyword \"$keyword\". $B_$NL";
 	    } else
 	    {
 	        $siteranks = $siterank_data[$keyword];
-	        echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" and website \"$test_website_url\" [$test_country / $test_language] $B_$NL";
-	        foreach ($siteranks as $siterank)
-	            echo "Rank $siterank[rank] for URL $siterank[url]$NL";
+	//        echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" and website \"$test_website_url\" [$test_country / $test_language] $B_$NL";
+	//        foreach ($siteranks as $siterank)
+	//            echo "Rank $siterank[rank] for URL $siterank[url]$NL";
 	    }
 	}
 	//var_dump($siterank_data);
@@ -371,7 +371,7 @@ class MainscrapingController extends Controller
 	{
 	    echo "</body></html>";
 	}
-
+	echo 1;
 	exit();
 	return view('home');
     }

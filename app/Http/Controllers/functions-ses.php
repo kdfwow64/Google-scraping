@@ -48,7 +48,7 @@
             {
                 $serdata = file_get_contents($file);
                 $serp_data = unserialize($serdata);
-                verbose("Cache: loaded file $file for $search_string and page $page. File age: $hour hours$NL");
+            //    verbose("Cache: loaded file $file for $search_string and page $page. File age: $hour hours$NL");
 
                 return $serp_data;
             }
@@ -168,7 +168,7 @@
         } else
         {
             ($PLAN['active'] == 1) ? $ready = "active" : $ready = "not active";
-            verbose("API success: Account is $ready.$NL");
+        //    verbose("API success: Account is $ready.$NL");
             if ($PLAN['active'] == 1) return 1;
 
             return 0;
@@ -740,8 +740,8 @@
             {
                 $data = extractBody($res);
                 $obj = unserialize($data);
-                if (isset($obj['error'])) echo $obj['error'] . "$NL";
-                if (isset($obj['info'])) echo $obj['info'] . "$NL";
+            //    if (isset($obj['error'])) echo $obj['error'] . "$NL";
+            //    if (isset($obj['info'])) echo $obj['info'] . "$NL";
                 return $obj['data'];
 
                 if (strlen($data) < 4) return NULL; // invalid api response
