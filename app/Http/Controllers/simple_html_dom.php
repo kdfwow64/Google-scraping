@@ -1144,7 +1144,7 @@ class simple_html_dom
         if ($stripRN) {
             $str = str_replace("\r", " ", $str);
             $str = str_replace("\n", " ", $str);
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
             // set the length of content since we have changed it.
             $this->size = strlen($str);
         }

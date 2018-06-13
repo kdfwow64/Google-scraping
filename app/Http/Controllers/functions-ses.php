@@ -332,6 +332,41 @@
         return $htmdata;
     }
 
+    function scrape_issues($url)
+    {
+        $scrape_result = "";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.0; en; rv:1.9.0.4) Gecko/2009011913 Firefox/3.0.6");
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $htmdata = curl_exec($ch);
+        if (!$htmdata)
+        {
+            $error = curl_error($ch);
+            $info = curl_getinfo($ch);
+            echo "\tError scraping: $error [ $error ]$NL";
+            $scrape_result = "SCRAPE_ERROR";
+            sleep(3);
+
+            return "";
+        } else
+        {
+            if (strlen($htmdata) < 20)
+            {
+                $scrape_result = "SCRAPE_EMPTY_SERP";
+                sleep(3);
+
+                return "";
+            }
+        }
+
+        return $htmdata;
+    }
+
     require_once "simple_html_dom.php";
     function process_raw_v2($data, $page)
     {

@@ -2,11 +2,78 @@
 
 namespace App\Http\Controllers;
 
+use App\Info;
 use Illuminate\Http\Request;
 
 class MainscrapingController extends Controller
 {
+	public function getdetailInfo($url) {
+	//	$url= "http://forbes.com/sites/jaysondemers/2016/11/07/6-tools-for-keyword-research-you-need-in-seo/";
+		if(substr($url, 0, 4) == "http") {
+			$sub_url = substr($url,strpos($url,"/")+2);
+			if(substr($sub_url, 0, 3) == "www")
+				$sub_url = substr($sub_url,4);
+			if(strpos($sub_url,'/') !== false)
+				$sub_url = substr($sub_url, 0, strpos($sub_url, '/'));
+			$url = "http://api.whoxy.com/?key=ef2366e1534b0892wz0a9d52229b6f53e&whois=".$sub_url;
+			$serdata = json_decode(file_get_contents($url),true);
+			return $serdata;
+		} else {
+			return null;
+		}
+	}
+	public function getIssues($url) {
 
+		if(substr($url, 0, 4) == "http") {
+			$sub_url = substr($url,strpos($url,"/")+2);
+			if(substr($sub_url, 0, 3) == "www")
+				$sub_url = substr($sub_url,4);
+			if(strpos($sub_url,'/') !== false)
+				$sub_url = substr($sub_url, 0, strpos($sub_url, '/'));
+			$vkey = $sub_url;
+			$scrape_result = "";
+			$url = "https://validator.w3.org/nu/?doc=https%3A%2F%2F$vkey%2F";
+	        $ch = curl_init();
+	        curl_setopt($ch, CURLOPT_HEADER, 0);
+	        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 20);
+	        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+	        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.0; en; rv:1.9.0.4) Gecko/2009011913 Firefox/3.0.6");
+	        curl_setopt($ch, CURLOPT_URL, $url);
+	        $htmdata = curl_exec($ch);
+	        if (!$htmdata)
+	        {
+	            $error = curl_error($ch);
+	            $info = curl_getinfo($ch);
+	            echo "\tError scraping: $error [ $error ]$NL";
+	            $scrape_result = "SCRAPE_ERROR";
+	            sleep(3);
+
+	            return null;
+	        } else
+	        {
+	            if (strlen($htmdata) < 20)
+	            {
+	                $scrape_result = "SCRAPE_EMPTY_SERP";
+	                sleep(3);
+
+	                return null;
+	            }
+	        }
+	        $html = new \DOMDocument();
+	        libxml_use_internal_errors(true);
+	        $html->loadHTML($htmdata);
+	        $dom_xpath =new \DOMXPath($html);
+	        $res['error_total'] = $dom_xpath->query('//div[@id="results"]/ol/li[@class="error"]')->length;
+	        $res['warning_total'] = $dom_xpath->query('//div[@id="results"]/ol/li[@class="info warning"]')->length;
+	        return $res;
+
+
+		} else {
+			return null;
+		}
+	}
     public function searchwithKeyword() {
     	global $pwd;
         global $uid;
@@ -38,8 +105,10 @@ class MainscrapingController extends Controller
 
 	    // General configuration
 	    $test_website_url = "website.com"; // The URL, or a sub-string of it, of the indexed website.
-	    $test_keywords = "keyword,another keyword,more keywords"; // comma separated keywords to test the rank for
+	    $test_keywords = "keyword"; // comma separated keywords to test the rank for
 	    $test_max_pages = 3; // The number of result pages to test until giving up per keyword.
+	    $start_page = 1;
+	    $end_page = 2;
 	    $test_100_resultpage = 0; // Warning: Google ranking results may  become inaccurate
 
 	    /* Local result configuration. Enter 'help' to receive a list of possible choices. use global and en for the default worldwide results in english 
@@ -119,7 +188,7 @@ class MainscrapingController extends Controller
 	    /*
 	    * This loop iterates through all result pages for the given keyword
 	    */
-	    for ($page = 0; $page < $test_max_pages; $page++)
+	    for ($page = $start_page; $page < $end_page; $page++)
 	    {
 	        $serp_data = load_cache($search_string, $page, $country_data, $force_cache); // load results from local cache if available for today
 	        $maxpages = 0;
@@ -234,12 +303,12 @@ class MainscrapingController extends Controller
 
 	    } // page loop
 	} // keyword loop
-
+	$fff = 0;
 	if ($show_all_ranks)
 	{
 	    foreach ($rank_data as $keyword => $ranks)
 	    {
-	        echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" $B_$NL";
+	        echo "$NL$NL$B" . "Ranking information for keyword \"$keyword\" $B_$NL";																																																																																																						
 	        echo "$B" . "Rank [Type] - Website -  Title$B_$NL";
 	        $pos = 0;
 	        foreach ($ranks as $rank)
@@ -247,13 +316,36 @@ class MainscrapingController extends Controller
 	            $pos++;
 	            if (strstr($rank['url'], $test_website_url))
 	            {
-	                echo "$B$pos [$rank[type]] - $rank[url] - $rank[title] $B_$NL";
+	        //        echo "$B$pos [$rank[type]] - $rank[url] - $rank[title] $B_$NL";
 	//                    echo $rank['desc']."\n";
 	            } else
 	            {
-	                echo "$pos [$rank[type]] - $rank[url] - $rank[title] $NL";
+	        //        echo "$pos [$rank[type]] - $rank[url] - $rank[title] $NL";
 	//                    echo $rank['desc']."\n";
 	            }
+	            $pos_temp = $pos % 10;
+	            $pos_1 = ($pos - $pos_temp) / 10;
+	            $pos_str = ($start_page + $pos_1 + 1) * 10 + $pos_temp;
+
+	            $new_info = new Info();
+	            $new_info->business_name = $rank['title'];
+	            $new_info->domain_name = $rank['url'];
+	            $new_info->rank = $pos_str;
+	            $new_info->flag = 0;
+	            $detail_info = $this->getdetailInfo($rank['url']);
+	            if($detail_info != null) {
+	            	$new_info->admins_name = $detail_info['administrative_contact']['full_name'];
+	            	$new_info->email = $detail_info['administrative_contact']['email_address'];
+	            	$new_info->phone = $detail_info['administrative_contact']['phone_number'];
+	            	$new_info->mailing_address = $detail_info['administrative_contact']['mailing_address'];
+	            	$new_info->flag = 1;
+	            }
+
+	            $url = $rank['url'];
+	            $issues = $this->getIssues($rank['url']);
+	            $new_info->error_total = $issues['error_total'];
+	            $new_info->warning_total = $issues['warning_total'];
+	            $new_info->save();
 	        }
 	    }
 	}

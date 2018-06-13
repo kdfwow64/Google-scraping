@@ -14,8 +14,11 @@
 Route::get('/', function () {
     return view('auth.login');
 });
+Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/scrape', 'MainscrapingController@searchwithKeyword');
+Route::get('/info', 'MainscrapingController@getdetailInfo');
+Route::get('/test', 'MainscrapingController@test');
+Route::get('/home/get', 'HomeController@get')->name('get');
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/scrape', 'MainscrapingController@searchwithKeyword');
