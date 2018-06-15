@@ -15,9 +15,8 @@ Route::get('/', function () {
     return view('auth.login');
 });
 Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/scrape', 'MainscrapingController@searchwithKeyword');
 Route::get('/info', 'MainscrapingController@getdetailInfo');
-Route::get('mail/send', 'MailController@send');
+Route::get('/mail/send', 'MailController@send');
 Route::get('/mail/template', 'MailController@index');
 Route::get('/blacklist/manage', 'HomeController@blacklist');
 Route::get('/blacklist/delete/{id}', 'HomeController@blacklistDelete');

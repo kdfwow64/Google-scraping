@@ -276,7 +276,6 @@
 
         curl_setopt($ch, CURLOPT_URL, $url);
         $htmdata = curl_exec($ch);
-        
         if (!$htmdata)
         {
             $error = curl_error($ch);

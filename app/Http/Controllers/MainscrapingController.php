@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class MainscrapingController extends Controller
 {
+	public function __construct()
+    {
+        $this->middleware('auth');
+    }
 	public function getDomainfromUrl($url) {
 		if(substr($url, 0, 4) == "http") {
 			$sub_url = substr($url,strpos($url,"/")+2);
@@ -40,6 +44,7 @@ class MainscrapingController extends Controller
 	        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 	        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.0; en; rv:1.9.0.4) Gecko/2009011913 Firefox/3.0.6");
 	        curl_setopt($ch, CURLOPT_URL, $url);
+	        set_time_limit(0);
 	        $htmdata = curl_exec($ch);
 	        if (!$htmdata)
 	        {
