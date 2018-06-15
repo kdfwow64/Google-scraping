@@ -25,8 +25,9 @@
                         <table id="blacklist_table" class="table table-striped">
                             <thead>
                                 <tr>
-                                    <td>No</td>
+                                    <td style="width: 10%;">No</td>
                                     <td>Domain Name</td>
+                                    <td style="width: 10%;"><i class="fa fa-trash" style="font-size: 20px;"></i></td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -34,6 +35,7 @@
                                     <tr>
                                         <td>{{$key+1}}</td>
                                         <td>{{$row->domain}}</td>
+                                        <td style="width: 10%;"><a href="{{ url('blacklist/delete/'.$row->id) }}"><i class="fa fa-trash del" style="font-size: 20px;"></i></a></td>
                                     </tr>
                                 @endforeach
                             </tbody>

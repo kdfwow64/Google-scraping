@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{$template_name}} Template</div>
+                <div class="card-header">Email Template</div>
 
                 <div class="card-body mail-template" style="text-align: center;">
                     @if (session('status'))

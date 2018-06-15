@@ -54,4 +54,11 @@ class HomeController extends Controller
         $blacklist = Blacklist::get(['*']);
         return view('others.blacklist',compact('blacklist'));
     }
+
+    public function blacklistDelete($id) {
+        $del = Blacklist::where('id',$id)->first();
+        $del->delete();
+        $blacklist = Blacklist::get(['*']);
+        return view('others.blacklist',compact('blacklist'));
+    }
 }

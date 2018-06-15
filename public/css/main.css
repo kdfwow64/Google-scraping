@@ -1,3 +1,6 @@
+.display_none {
+	display: none;
+}
 
 #google_search_div {
 	padding: 30px;
@@ -70,4 +73,8 @@
 #email_title {
 	width: 100%;
 	margin-bottom: 10px;
+}
+
+#blacklist_show_div a:hover {
+	cursor: pointer;
 }

@@ -8,4 +8,5 @@ class MailTemplate extends Model
 {
     //
     protected $table = 'mails';
+    public $timestamps = false;
 }

@@ -324,28 +324,32 @@ class MainscrapingController extends Controller
 	            $pos_1 = ($pos - $pos_temp) / 10;
 	            $pos_str = ($start_page + $pos_1 + 1) * 10 + $pos_temp;
 
-	            $new_info = new Info();
 	            $domain = $this->getDomainfromUrl($rank['url']);
-	            $new_info->business_name = $rank['title'];
-	            $new_info->domain_name = $domain;
-	            $new_info->rank = $pos_str;
-	            $new_info->flag = 0;
-	            if($domain != null ) {
-	            	$detail_info = $this->getdetailInfo($domain);
-		            if($detail_info != null) {
-		            	$new_info->admins_name = $detail_info['administrative_contact']['full_name'];
-		            	$new_info->email = $detail_info['administrative_contact']['email_address'];
-		            	$new_info->phone = $detail_info['administrative_contact']['phone_number'];
-		            	$new_info->mailing_address = $detail_info['administrative_contact']['mailing_address'];
-		            	$new_info->flag = 1;
-		            }
+	            if((Info::where('domain_name',$domain)->get()->count()) == 0) { 
+		            $new_info = new Info();
+		            $new_info->business_name = $rank['title'];
+		            $new_info->domain_name = $domain;
+		            $new_info->rank = $pos_str;
+		            $new_info->flag = 0;
+		            $new_info->black = 0;
+		            
+		            if($domain != null ) {
+		            	$detail_info = $this->getdetailInfo($domain);
+			            if($detail_info != null) {
+			            	$new_info->admins_name = $detail_info['administrative_contact']['full_name'];
+			            	$new_info->email = $detail_info['administrative_contact']['email_address'];
+			            	$new_info->phone = $detail_info['administrative_contact']['phone_number'];
+			            	$new_info->mailing_address = $detail_info['administrative_contact']['mailing_address'];
+			            	$new_info->flag = 1;
+			            }
 
-		            $issues = $this->getIssues($domain);
-		            $new_info->error_total = $issues['error_total'];
-		            $new_info->warning_total = $issues['warning_total'];
-	            }
-	            
-	            $new_info->save();
+			            $issues = $this->getIssues($domain);
+			            $new_info->error_total = $issues['error_total'];
+			            $new_info->warning_total = $issues['warning_total'];
+		            }
+		            
+		            $new_info->save();
+		        }
 	        }
 	    }
 	}

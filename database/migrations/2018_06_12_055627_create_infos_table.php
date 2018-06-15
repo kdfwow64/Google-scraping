@@ -23,6 +23,7 @@ class CreateInfosTable extends Migration
             $table->string('phone')->nullable();
             $table->string('mailing_address')->nullable();
             $table->integer('flag')->unsigned()->nullable();
+            $table->integer('black')->unsigned()->nullable();
             $table->integer('warning_total')->unsigned()->nullable();
             $table->integer('error_total')->unsigned()->nullable();
             $table->timestamps();

@@ -39,6 +39,7 @@
                         <div class="col-md-6">
                             <input type="input" class="form-control input-box" name="domain_keyword" id="domain_keyword" name="domain_keyword" placeholder="Domain keyword ..." style="border: solid 1px;">
                             <button id="domain_search" class="btn btn-warning">Search</button>
+                            <br>
                             <table id="domain_search_table" class="table table-striped" style="display: none;">
                                 <thead>
                                     <tr>
@@ -54,6 +55,7 @@
                         <div class="col-md-6">
                             <input type="input" class="form-control input-box" name="email_keyword" id="email_keyword" name="email_keyword" placeholder="Search Email ..." style="border: solid 1px;">
                             <button id="email_search" class="btn btn-warning">Search</button>
+                            <br>
                             <table id="email_search_table" class="table table-striped" style="display: none;">
                                 <thead>
                                     <tr>
@@ -115,7 +117,8 @@
             end_page = $('#end_page').val();
             keyword = $('#keyword').val();
             $('.running').css('display','unset');
-            $('#google_search_div').css('display','none');
+            $('.search_title').addClass('display_none');
+            $('#google_search_div').addClass('display_none');
             $.ajax({
                 url: "{{url('home/scrape')}}",
                 headers: {
@@ -129,12 +132,14 @@
                 type: 'post',
                 success: function(result) {
                     $('.running').css('display','none');
-                    $('#google_search_div').css('display','unset');
+                    $('.search_title').removeClass('display_none');
+                    $('#google_search_div').removeClass('display_none');
                     console.log(result);
                 },
                 error: function(error) {
                     $('.running').css('display','none');
-                    $('#google_search_div').css('display','unset');
+                    $('.search_title').removeClass('display_none');
+                    $('#google_search_div').removeClass('display_none');
                     alert("Error");
                 }
             });
@@ -162,6 +167,7 @@
                 }
             });
         });
+        
         $('#email_search').click(function(){
             var email = $('#email_keyword').val();
             $('#email_search_table').css('display','unset');
@@ -179,6 +185,22 @@
                     for(i = 0; i < result.length ; i++) {
                         $('#email_search_table tbody').append("<tr><td>"+(i+1)+"</td><td>"+result[i]['email']+"</td></tr>");
                     }
+                },
+                error: function(error) {
+                    alert("Error");
+                }
+            });
+        });
+
+        $('#send_email_btn').click(function() {
+            $.ajax({
+                url: "{{url('mail/sendAll')}}",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                type: 'post',
+                success: function(result) {
+                    alert("Done");
                 },
                 error: function(error) {
                     alert("Error");

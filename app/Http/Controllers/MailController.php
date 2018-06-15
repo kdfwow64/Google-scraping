@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers;
- 
+
 use App\MailTemplate;
+use App\Blacklist;
+use App\Info;
 use App\Http\Controllers\Controller;
 use App\Mail\DemoEmail;
 use Illuminate\Support\Facades\Mail;
@@ -20,6 +22,43 @@ class MailController extends Controller
  
         Mail::to("kdfwow64@gmail.com")->send(new DemoEmail($objDemo));
     }
+
+    public function replaceFunction($str,$info) {
+        $str = str_replace("#domain#", $info['domain_name'], $str);
+        $str = str_replace("#fname#", $info['admins_name'], $str);
+        $str = str_replace("#rank#", $info['rank'], $str);
+        $errors = $info['error_total'] + $info['warning_total'];
+        $str = str_replace("#errors#", $errors, $str);
+        $str = str_replace("#email#", $info['email'], $str);
+        return $str;
+        
+    }
+    public function sendAll()
+    {
+        $template = MailTemplate::get(['*'])->first();
+        $template_name = $template['template_name'];
+        $template_text = $template['template_text'];
+
+        $blacklist = Blacklist::get(['*']);
+        for( $i = 0 ; $i < sizeof($blacklist) ; $i++ ) {
+            DB::update('update infos set black = "1" where domain_name like ?' , [$blacklist[$i]['domain']]);
+            $sub = '.'.$blacklist[$i]['domain'];
+            DB::update('update infos set black = "1" where domain_name like ?' , [$sub]);
+        }
+        $info = Info::get(['*']);
+        for( $i = 0 ; $i < sizeof($info) ; $i++ ) {
+            if($info[$i]['black'] != 1) {
+                $objDemo = new \stdClass();
+                $objDemo->title = $this->replaceFunction($template_name,$info[$i]);
+                $objDemo->text = $this->replaceFunction($template_text,$info[$i]);
+                $objDemo->sender = 'Google Scraping Server';
+                $objDemo->receiver = $info[$i]['admins_name'];
+         
+                Mail::to($info[$i]['email'])->send(new DemoEmail($objDemo));
+            }
+        }
+    }
+
     public function index() {
     	$template = MailTemplate::get(['*'])->first();
     	$template_name = $template['template_name'];
