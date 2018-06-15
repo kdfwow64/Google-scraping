@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Info;
+use App\Blacklist;
 
 class HomeController extends Controller
 {
@@ -39,5 +40,18 @@ class HomeController extends Controller
         $ss = '%'.$email.'%';
         $items = Info::where('email','like',$ss)->get(['*']);
         return response()->json($items);
+    }
+
+    public function blacklist() {
+        $blacklist = Blacklist::get(['*']);
+        return view('others.blacklist',compact('blacklist'));
+    }
+
+    public function insert(Request $request) {
+        $new_info = new Blacklist;
+        $new_info->domain = $request->input('blacklist_domain');
+        $new_info->save();
+        $blacklist = Blacklist::get(['*']);
+        return view('others.blacklist',compact('blacklist'));
     }
 }

@@ -21,6 +21,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/main.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -54,6 +55,27 @@
                                 <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
                             </li>
                         @else
+                            <li>
+                                <a id="home_navbar" class="nav-link" href="{{ url('home') }}" role="button"   aria-expanded="false" v-pre>
+                                    Home
+                                </a>
+
+                            </li>
+
+                            <li>
+                                <a id="mail_navbar" class="nav-link" href="{{ url('mail/template') }}" role="button"   aria-expanded="false" v-pre>
+                                    Mail Template
+                                </a>
+
+                            </li>
+
+                            <li>
+                                <a id="blacklist_navbar" class="nav-link" href="{{ url('blacklist/manage') }}" role="button"   aria-expanded="false" v-pre>
+                                    Blacklist
+                                </a>
+
+                            </li>
+
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }} <span class="caret"></span>

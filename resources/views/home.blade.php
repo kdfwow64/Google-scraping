@@ -3,52 +3,69 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card">
                 <div class="card-header">Search Box</div>
 
-                <div class="card-body" style="text-align: center;">
+                <div class="card-body home-body" style="text-align: center;">
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
                         </div>
                     @endif
+                    <span class="search_title">Google Search</span>
                     <span class="running" style="display: none;">It's running...</span>
-                    <label>Start Page : </label>
-                    <input type="number" id="start_page" name="start_page" min="0" style="width: 40px;border: solid 1px;" value="0">
-                    <label>End Page : </label>
-                    <input type="number" id="end_page" name="end_page" min="0" style="width: 40px;border: solid 1px;" value="0">
+                    
+                    <div class="row" id="google_search_div">
+                        <div class="col-md-4">
+                            <label>Start Page : </label>
+                            <input type="number" class="form-control input-box"  id="start_page" name="start_page" name="start_page" min="0" style="width: 40px;border: solid 1px;" value="0">
+                            <label>End Page : </label>
+                            <input type="number" class="form-control input-box" name="end_page"  id="end_page" name="end_page" min="0" style="width: 40px;border: solid 1px;" value="0">
+                        </div>
+
+                        <div class="col-md-4">
+                            <input type="input" class="form-control input-box" name="keyword" id="keyword" style="border: solid 1px;" placeholder="Please input keyword..." name="keyword">
+                            <button id="google_search" class="btn btn-warning">Search</button>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button id="send_email_btn" class="btn btn-success">Send Mail</button>
+                        </div>
+                    </div>
                     <br>
-                    <input type="input" id="keyword" style="border: solid 1px;" placeholder="Please input keyword..." name="keyword">
-                    <button id="google_search">Search</button>
-                    <br>
-                    <input type="input" id="domain_keyword" name="domain_keyword" placeholder="Domain keyword ..." style="border: solid 1px;">
-                    <button id="domain_search">Search</button>
-                    <br>
-                    <table id="domain_search_table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <td>No</td>
-                                <td>Domain Name</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <br>
-                    <input type="input" id="email_keyword" name="email_keyword" placeholder="Search Email ..." style="border: solid 1px;">
-                    <button id="email_search">Search</button>
-                    <br>
-                    <table id="email_search_table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <td>No</td>
-                                <td>Email</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                    <span class="search_title">Search in the Database</span>
+                    <div class="row" id="other_search_div">
+                        <div class="col-md-6">
+                            <input type="input" class="form-control input-box" name="domain_keyword" id="domain_keyword" name="domain_keyword" placeholder="Domain keyword ..." style="border: solid 1px;">
+                            <button id="domain_search" class="btn btn-warning">Search</button>
+                            <table id="domain_search_table" class="table table-striped" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <td>No</td>
+                                        <td>Domain Name</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <input type="input" class="form-control input-box" name="email_keyword" id="email_keyword" name="email_keyword" placeholder="Search Email ..." style="border: solid 1px;">
+                            <button id="email_search" class="btn btn-warning">Search</button>
+                            <table id="email_search_table" class="table table-striped" style="display: none;">
+                                <thead>
+                                    <tr>
+                                        <td>No</td>
+                                        <td>Email</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,6 +115,7 @@
             end_page = $('#end_page').val();
             keyword = $('#keyword').val();
             $('.running').css('display','unset');
+            $('#google_search_div').css('display','none');
             $.ajax({
                 url: "{{url('home/scrape')}}",
                 headers: {
@@ -111,9 +129,12 @@
                 type: 'post',
                 success: function(result) {
                     $('.running').css('display','none');
+                    $('#google_search_div').css('display','unset');
                     console.log(result);
                 },
                 error: function(error) {
+                    $('.running').css('display','none');
+                    $('#google_search_div').css('display','unset');
                     alert("Error");
                 }
             });
@@ -166,10 +187,4 @@
         });
     });
 </script>
-<style type="text/css">
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-    }
-</style>
 @endsection
